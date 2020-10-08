@@ -1,21 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { createAppContainer, createSwitchNavigator } from "react-navigation";
+import { createStackNavigator } from "react-navigation-stack";
+import { createBottomTabNavigator } from "react-navigation-tabs";
+import { setNavigator } from "./src/navigationRef";
+import FirebaseConfig from "./firebaseConfig";
+import * as firebase from 'firebase';
+import { Provider as AuthProvider } from "./src/context/AuthContext";
+import CategorySelectionScreen from "./src/screens/CategorySelectionScreen";
+import SigninScreen from "./src/screens/authentication/SigninScreen";
+import SignupScreen from "./src/screens/authentication/SignupScreen";
+import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
+import AccountScreen from "./src/screens/AccountScreen";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+firebase.initializeApp(FirebaseConfig);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+const switchNavigator = createSwitchNavigator({
+  ResolveAuth: ResolveAuthScreen,
+  loginFlow: createStackNavigator({
+    Signin: SigninScreen,
+    Signup: SignupScreen,
+  }),
+  mainFlow: createBottomTabNavigator({
+    CategorySelection: CategorySelectionScreen,
+    Account: AccountScreen
+  })
 });
+
+const App = createAppContainer(switchNavigator);
+
+export default () => {
+  return (
+    <AuthProvider>
+      <App
+        ref={(navigator) => {
+          setNavigator(navigator);
+        }}
+      />
+    </AuthProvider>
+  );
+};
