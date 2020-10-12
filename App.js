@@ -10,8 +10,8 @@ import CategorySelectionScreen from "./src/screens/CategorySelectionScreen";
 import SigninScreen from "./src/screens/authentication/SigninScreen";
 import SignupScreen from "./src/screens/authentication/SignupScreen";
 import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
-import SettingsScreen from "./src/screens/account-settings/SettingsScreen";
-import ProfileScreen from "./src/screens/account-settings/ProfileScreen";
+import SettingsScreen from "./src/screens/settings/SettingsScreen";
+import ProfileScreen from "./src/screens/settings/ProfileScreen";
 
 firebase.initializeApp(FirebaseConfig);
 
