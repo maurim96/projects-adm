@@ -59,7 +59,7 @@ developing...
 
 * **Mauricio Miño** - *Software Engineer* - [maurim96](https://github.com/maurim96)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/maurim96/projects-adm/graphs/contributors) who participated in this project.
 
 ## License
 
