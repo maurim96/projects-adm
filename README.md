@@ -50,6 +50,7 @@ developing...
 * [React Native](https://reactnative.dev) - Mobile framework
 * [Expo](https://expo.io) - SDK tools
 * [Firebase](https://firebase.google.com/) - Authentication and backend
+* [Formik](https://formik.org) - Forms management
 
 ## Versioning
 
