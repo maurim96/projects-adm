@@ -1,4 +1,3 @@
-import { AsyncStorage } from "react-native";
 import createDataContext from "./createDataContext";
 import { navigate } from "../navigationRef";
 import * as Google from "expo-google-app-auth";
@@ -162,6 +161,13 @@ const signout = (dispatch) => async () => {
 
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signup, signin, signout, clearErrorMessage, checkIfUserIsLoggedIn, googleAuth },
+  {
+    signup,
+    signin,
+    signout,
+    clearErrorMessage,
+    checkIfUserIsLoggedIn,
+    googleAuth,
+  },
   { isSignedIn: false, errorMessage: "", user: null }
 );
