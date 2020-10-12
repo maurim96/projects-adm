@@ -1,6 +1,6 @@
 # Projects-Adm
 
-A mobile app developed in React Native intended for projects administration from both points of view (customer and company). EXPO based app fully integrated with Firebase.
+A Mobile Application (developed in React Native) intended for projects administration from both points of view (customer and provider). Expo based app fully integrated with Firebase (authentication and backend services).
 
 ## Getting Started
 
