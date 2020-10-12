@@ -8,11 +8,16 @@ const authReducer = (state, action) => {
     case "add_error":
       return { ...state, errorMessage: action.payload };
     case "signin":
-      return { errorMessage: "", user: action.payload };
+      return {
+        errorMessage: "",
+        user: action.payload,
+      };
     case "clear_error_message":
       return { ...state, errorMessage: "" };
     case "signout":
-      return { user: null, errorMessage: "" };
+      return { token: null, user: null, errorMessage: "" };
+    // case "update_profile":
+    //   return { ...state, user: action.payload };
     default:
       return state;
   }
@@ -21,7 +26,15 @@ const authReducer = (state, action) => {
 const checkIfUserIsLoggedIn = (dispatch) => async () => {
   firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
-      dispatch({ type: "signin", payload: user });
+      const userProfile = {
+        name: user.providerData[0]?.displayName,
+        email: user.providerData[0]?.email,
+        phone: user.providerData[0]?.phoneNumber,
+        photo: user.providerData[0]?.photoURL,
+        provider: user.providerData[0]?.providerId,
+        uid: user.providerData[0]?.uid,
+      };
+      dispatch({ type: "signin", payload: userProfile });
 
       navigate("mainFlow");
     } else {
@@ -40,7 +53,7 @@ const signup = (dispatch) => async ({ email, password }) => {
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((result) => {
-        dispatch({ type: "signin", payload: result.user });
+        dispatch({ type: "signin", payload: result });
 
         navigate("mainFlow");
       })
@@ -59,7 +72,7 @@ const signin = (dispatch) => async ({ email, password }) => {
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then((user) => {
-        dispatch({ type: "signin", payload: result });
+        dispatch({ type: "signin", payload: user });
 
         navigate("mainFlow");
       })
@@ -92,6 +105,7 @@ const googleAuth = (dispatch) => async ({}) => {
       return { cancelled: true };
     }
   } catch (error) {
+    console.log("ERROR ", error);
     dispatch({
       type: "add_error",
       payload: "Something went wrong with google sign in",
@@ -169,5 +183,5 @@ export const { Provider, Context } = createDataContext(
     checkIfUserIsLoggedIn,
     googleAuth,
   },
-  { isSignedIn: false, errorMessage: "", user: null }
+  { isSignedIn: false, errorMessage: "", user: null, token: null }
 );

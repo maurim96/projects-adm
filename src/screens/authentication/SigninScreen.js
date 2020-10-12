@@ -1,11 +1,13 @@
 import React, { useContext } from "react";
 import { View, StyleSheet } from "react-native";
 import { NavigationEvents } from "react-navigation";
-import AuthForm from "../../components/AuthForm";
 import { Context as AuthContext } from "../../context/AuthContext";
+import AuthForm from "../../components/AuthForm";
 
 const SigninScreen = () => {
-  const { state, signin, clearErrorMessage, googleAuth } = useContext(AuthContext);
+  const { state, signin, clearErrorMessage, googleAuth } = useContext(
+    AuthContext
+  );
 
   return (
     <View style={styles.container}>
@@ -14,9 +16,11 @@ const SigninScreen = () => {
         submitButtonText="sign in"
         errorMessage={state.errorMessage}
         onSubmit={signin}
-        navLinkText="don't have an account?"
+        navLinkSecondaryText="Don't have an account?"
+        navLinkText="Sign Up"
         navLinkRoute="Signup"
         onGoogleSubmit={googleAuth}
+        allowRecoverPassword={true}
       />
     </View>
   );
@@ -30,8 +34,7 @@ SigninScreen.navigationOptions = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
+    top: "30%",
   },
 });
 

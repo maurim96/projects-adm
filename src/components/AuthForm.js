@@ -1,72 +1,73 @@
 import React, { useState } from "react";
-import { StyleSheet, TouchableOpacity, Image, View } from "react-native";
+import { StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Input, Text, Button, Divider } from "react-native-elements";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import NavLink from "../components/NavLink";
+import CustomInput from "../components/CustomInput";
 
 const AuthForm = ({
   errorMessage,
   onSubmit,
   submitButtonText,
   navLinkText,
+  navLinkSecondaryText,
   navLinkRoute,
   onGoogleSubmit,
+  allowRecoverPassword,
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   return (
     <>
-      <Input
-        autoCapitalize="none"
-        autoCorrect={false}
-        inputContainerStyle={styles.inputContainer}
+      <CustomInput
         label="Email"
-        labelStyle={styles.label}
-        leftIcon={<Icon name="person-outline" size={24} color="gray" />}
-        leftIconContainerStyle={styles.iconContainer}
+        icon="person-outline"
         onChangeText={setEmail}
         textContentType="emailAddress"
         value={email}
       />
-      <Input
-        autoCapitalize="none"
-        autoCorrect={false}
-        inputContainerStyle={styles.inputContainer}
+      <CustomInput
         label="Password"
-        labelStyle={styles.label}
-        leftIcon={<Icon name="lock-outline" size={24} color="gray" />}
-        leftIconContainerStyle={styles.iconContainer}
+        icon="lock-outline"
         onChangeText={setPassword}
-        secureTextEntry
         value={password}
+        secureTextEntry={true}
       />
       {errorMessage ? (
         <Text style={styles.errorMessage}>{errorMessage}</Text>
       ) : null}
+      {allowRecoverPassword ? (
+        <NavLink text="Forgot Password?" customStyles={styles.forgotPassword} />
+      ) : null}
       <Button
-        buttonStyle={styles.regularLoginButton}
+        buttonStyle={styles.button}
         title={submitButtonText}
         titleStyle={styles.buttonText}
         onPress={() => onSubmit({ email, password })}
       />
-      <Divider style={styles.divider} />
-      <TouchableOpacity
-        style={styles.googleLoginButton}
-        activeOpacity={0.5}
-        onPress={onGoogleSubmit}
-      >
-        <Image
-          source={require("../../assets/google.png")}
-          style={styles.googleIcon}
-        />
-        <Text style={[styles.buttonText, styles.googleLoginButtonText]}>
-          {" "}
-          {submitButtonText} WITH GOOGLE{" "}
-        </Text>
-      </TouchableOpacity>
+      {navLinkRoute === "Signup" ? (
+        <>
+          <Divider style={styles.divider} />
+          <TouchableOpacity
+            style={[styles.button, styles.googleButton]}
+            activeOpacity={0.5}
+            onPress={onGoogleSubmit}
+          >
+            <Image
+              source={require("../../assets/google.png")}
+              style={styles.googleIcon}
+            />
+            <Text style={[styles.buttonText, styles.googleButtonText]}>
+              Log in with google
+            </Text>
+          </TouchableOpacity>
+        </>
+      ) : null}
+
       <NavLink
         text={navLinkText}
+        secondaryText={navLinkSecondaryText}
         routeName={navLinkRoute}
         customStyles={styles.link}
       ></NavLink>
@@ -75,70 +76,54 @@ const AuthForm = ({
 };
 
 const styles = StyleSheet.create({
-  regularLoginButton: {
-    marginHorizontal: 10,
+  button: {
+    marginHorizontal: "2%",
     borderRadius: 20,
-    height: 55,
+    height: 50,
   },
   buttonText: {
     fontSize: 16,
-    textTransform: "uppercase",
+    textTransform: "capitalize",
   },
-  googleLoginButton: {
+  googleButton: {
     alignItems: "center",
     backgroundColor: "white",
     borderWidth: 0.5,
-    borderRadius: 20,
-    borderColor: "gray",
-    borderRadius: 20,
+    borderColor: "lightgray",
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
-    height: 55,
-    marginHorizontal: 10,
   },
-  googleLoginButtonText: {
+  googleButtonText: {
     color: "gray",
-    marginLeft: 10,
+    marginLeft: "2%",
   },
   googleIcon: {
     height: 30,
     width: 30,
   },
   divider: {
-    backgroundColor: "gray",
-    marginHorizontal: 10,
-    marginVertical: 15,
+    backgroundColor: "lightgray",
+    marginHorizontal: "2%",
+    marginVertical: "5%",
   },
   errorMessage: {
     fontSize: 15,
     color: "red",
-    marginLeft: 10,
-    marginBottom: 15,
+    marginLeft: "2%",
+    marginBottom: "1%",
+    top: "-2%"
   },
-  inputContainer: {
-    borderWidth: 1,
-    borderRadius: 10,
-    height: 50,
-  },
-  iconContainer: {
-    borderRightWidth: 1,
-    borderColor: "lightgray",
-    marginRight: 10,
-    width: "15%",
-    left: 5,
-  },
-  label: {
-    color: "gray",
-    fontSize: 15,
-    left: 15,
-    marginBottom: 8,
-    fontWeight: "500",
+  forgotPassword: {
+    justifyContent: "flex-end",
+    marginBottom: "2%",
+    marginRight: "2%",
+    textAlign: "right",
+    top: "-2%",
   },
   link: {
-    textTransform: "uppercase",
-    textAlign: "center",
-    marginTop: 30,
+    marginTop: "5%",
+    justifyContent: "center",
   },
 });
 
