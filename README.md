@@ -11,11 +11,11 @@ These instructions will get you a copy of the project up and running on your loc
 Before setting up the project locally you must have:
 
 ```
-If you are running on macOS env: Homebrew v2.5.2 or higher (recomended package manager) - Download here https://brew.sh/index_es
-NodeJS v12.14.1 or higher (for mac users: brew install node)
-Npm v6.13.4 or higher (for mac users: brew install npm)
-React Native v0.63.2 or higher (for mac users: brew install react-native)
-React Native Cli v2.0.1 or higher (for mac users: brew install react-native-cli)
+-Homebrew v2.5.2 or higher (only for mac users) - Download here https://brew.sh/index_es
+-NodeJS v12.14.1 or higher (for mac users: brew install node)
+-Npm v6.13.4 or higher (for mac users: brew install npm)
+-React Native v0.63.2 or higher (for mac users: brew install react-native)
+-React Native Cli v2.0.1 or higher (for mac users: brew install react-native-cli)
 ```
 
 ### Installing
