@@ -1,6 +1,6 @@
 # Projects-Adm
 
-A Mobile Application (developed in React Native) intended for projects administration from both points of view (customer and provider). Expo based app fully integrated with Firebase (authentication and backend services).
+Mobile App (developed in React Native) intended for projects administration from both points of view (customer and provider). Expo based app fully integrated with Firebase (authentication and backend services).
 
 ## Getting Started
 
@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 Before setting up the project locally you must have:
 
 ```
--Homebrew v2.5.2 or higher (only for mac users) - Download here https://brew.sh/index_es
+-[Homebrew](https://brew.sh/index_es) v2.5.2 or higher (only for mac users)
 -NodeJS v12.14.1 or higher (for mac users: brew install node)
 -Npm v6.13.4 or higher (for mac users: brew install npm)
 -React Native v0.63.2 or higher (for mac users: brew install react-native)
