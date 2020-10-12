@@ -47,8 +47,9 @@ developing...
 
 ## Built With
 
-* [React Native](https://reactnative.dev) - Mobile framework used
+* [React Native](https://reactnative.dev) - Mobile framework
 * [Expo](https://expo.io) - SDK tools
+* [Firebase](https://firebase.google.com/) - Authentication and backend
 
 ## Versioning
 
