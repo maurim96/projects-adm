@@ -1,18 +1,28 @@
 import React, { useEffect, useContext } from "react";
 import { Context as AuthContext } from "../context/AuthContext";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  SafeAreaView,
+  View,
+} from "react-native";
 
 const ResolveAuthScreen = () => {
-  const { checkIfUserIsLoggedIn } = useContext(AuthContext);
+  const { checkIfUserIsLoggedInAndCurrentRole } = useContext(AuthContext);
 
   useEffect(() => {
-    checkIfUserIsLoggedIn();
+    async function check() {
+      await checkIfUserIsLoggedInAndCurrentRole();
+    }
+    check();
   }, []);
 
   return (
-    <View style={StyleSheet.container}>
-      <ActivityIndicator size="large" />
-    </View>
+    <SafeAreaView forceInset={{ top: "always" }}>
+      <View style={StyleSheet.container}>
+        <ActivityIndicator size="large" />
+      </View>
+    </SafeAreaView>
   );
 };
 

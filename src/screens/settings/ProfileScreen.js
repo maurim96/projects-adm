@@ -8,7 +8,7 @@ import { useFormik } from "formik";
 const avatarNoPic = require("../../../assets/no-avatar.png");
 
 const ProfileScreen = () => {
-  const { state } = useContext(AuthContext);
+  const { state, updateUserProfile } = useContext(AuthContext);
   const [email, setEmail] = useState(state.user?.email);
   const [photoURL, setPhoto] = useState(state.user?.photo);
   const isGoogleAcc = state.user?.provider === "google.com";
@@ -16,18 +16,15 @@ const ProfileScreen = () => {
   const formik = useFormik({
     initialValues: {
       name: state.user?.name || "",
-      phone: state.user?.phone || "",
     },
-    onSubmit: (values) => {
-      console.log(values);
+    onSubmit: async (values) => {
+      await updateUserProfile(values.name, photoURL);
     },
+    enableReinitialize: true,
   });
 
   const formHasChanged = () => {
-    return (
-      formik.initialValues.name === formik.values.name ||
-      formik.initialValues.phone === formik.values.phone
-    );
+    return formik.initialValues.name !== formik.values.name;
   };
   return (
     <View style={styles.container}>
@@ -48,16 +45,6 @@ const ProfileScreen = () => {
             icon="person-outline"
             placeholder={isGoogleAcc ? "" : "John Doe"}
             editable={isGoogleAcc ? false : true}
-          />
-          <CustomInput
-            label="phone number"
-            textContentType="telephoneNumber"
-            value={formik.values.phone}
-            onChangeText={(phone) => formik.setFieldValue("phone", phone)}
-            icon="phone"
-            placeholder={isGoogleAcc ? "" : "+54 370 4696171"}
-            editable={isGoogleAcc ? false : true}
-            keyboardType="phone-pad"
           />
           <CustomInput
             label="email address"

@@ -6,5 +6,5 @@ export default firebaseConfig = {
   storageBucket: "projects-adm.appspot.com",
   messagingSenderId: "699175144676",
   appId: "1:699175144676:web:5af3afd026714b264f70f1",
-  measurementId: "G-GFS7DPVLH5"
+  measurementId: "G-GFS7DPVLH5",
 };

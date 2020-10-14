@@ -16,75 +16,72 @@ const authReducer = (state, action) => {
       return { ...state, errorMessage: "" };
     case "signout":
       return { token: null, user: null, errorMessage: "" };
-    // case "update_profile":
-    //   return { ...state, user: action.payload };
+    case "update_profile":
+      return { ...state, user: action.payload };
     default:
       return state;
   }
 };
 
-const checkIfUserIsLoggedIn = (dispatch) => async () => {
-  firebase.auth().onAuthStateChanged(function (user) {
-    if (user) {
-      const userProfile = {
-        name: user.providerData[0]?.displayName,
-        email: user.providerData[0]?.email,
-        phone: user.providerData[0]?.phoneNumber,
-        photo: user.providerData[0]?.photoURL,
-        provider: user.providerData[0]?.providerId,
-        uid: user.providerData[0]?.uid,
-      };
-      dispatch({ type: "signin", payload: userProfile });
+const checkIfUserIsLoggedInAndCurrentRole = (dispatch) => async () => {
+  const user = await firebase.auth().currentUser;
+  if (user) {
+    const userProfile = getUserProfileFromFirebaseUser(user);
+    dispatch({ type: "signin", payload: userProfile });
 
-      navigate("mainFlow");
-    } else {
-      navigate("loginFlow");
-    }
-  });
+    navigate("MainStack");
+  } else {
+    navigate("LoginStack");
+  }
 };
 
-const clearErrorMessage = (dispatch) => () => {
-  dispatch({ type: "clear_error_message" });
+const updateUserProfile = (dispatch) => async (name, photo) => {
+  await firebase.auth().onAuthStateChanged(
+    (user) => {
+      if (user) {
+        user
+          .updateProfile({
+            displayName: name,
+            photoURL: photo,
+          })
+          .then(() => {
+            const userProfile = getUserProfileFromFirebaseUser(user);
+
+            dispatch({ type: "update_profile", payload: userProfile });
+          })
+          .catch((err) =>
+            dispatch({ type: "add_error", payload: err.message })
+          );
+      }
+    },
+    (err) => dispatch({ type: "add_error", payload: err.message })
+  );
 };
 
 const signup = (dispatch) => async ({ email, password }) => {
-  try {
-    await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((result) => {
-        dispatch({ type: "signin", payload: result });
+  await firebase
+    .auth()
+    .createUserWithEmailAndPassword(email, password)
+    .then((result) => {
+      dispatch({ type: "signin", payload: result });
 
-        navigate("mainFlow");
-      })
-      .catch((err) => dispatch({ type: "add_error", payload: err.message }));
-  } catch (error) {
-    dispatch({
-      type: "add_error",
-      payload: "Something went wrong with sign up",
-    });
-  }
+      navigate("MainStack");
+    })
+    .catch((err) => dispatch({ type: "add_error", payload: err.message }));
 };
 
 const signin = (dispatch) => async ({ email, password }) => {
-  try {
-    await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .then((user) => {
-        dispatch({ type: "signin", payload: user });
+  await firebase
+    .auth()
+    .signInWithEmailAndPassword(email, password)
+    .then((user) => {
+      dispatch({ type: "signin", payload: user });
 
-        navigate("mainFlow");
-      })
-      .catch((err) =>
-        dispatch({ type: "add_error", payload: "Incorrect email or password" })
-      );
-  } catch (error) {
-    dispatch({
-      type: "add_error",
-      payload: "Something went wrong with sign in",
-    });
-  }
+      navigate("MainStack");
+    })
+    .catch((err) =>
+      dispatch({ type: "add_error", payload: "Incorrect email or password" })
+    );
 };
 
 const googleAuth = (dispatch) => async ({}) => {
@@ -97,10 +94,7 @@ const googleAuth = (dispatch) => async ({}) => {
     });
 
     if (result.type === "success") {
-      await this.firebaseGoogleAuth(result);
-      dispatch({ type: "signin", payload: result });
-
-      navigate("mainFlow");
+      await this.firebaseGoogleAuth(result, dispatch);
     } else {
       return { cancelled: true };
     }
@@ -113,53 +107,60 @@ const googleAuth = (dispatch) => async ({}) => {
   }
 };
 
-firebaseGoogleAuth = async (googleUser) => {
-  // We need to register an Observer on Firebase Auth to make sure auth is initialized.
-  var unsubscribe = firebase.auth().onAuthStateChanged(
-    function (firebaseUser) {
+firebaseGoogleAuth = async (googleUser, dispatch) => {
+  try {
+    // We need to register an Observer on Firebase Auth to make sure auth is initialized.
+    var unsubscribe = firebase.auth().onAuthStateChanged(async () => {
       unsubscribe();
-      // Check if we are already signed-in Firebase with the correct user.
-      if (!this.isUserEqual(googleUser, firebaseUser)) {
-        // Build Firebase credential with the Google ID token.
-        var credential = firebase.auth.GoogleAuthProvider.credential(
-          googleUser.idToken,
-          googleUser.accessToken
-        );
-        // Sign in with credential from the Google user.
-        firebase
-          .auth()
-          .signInWithCredential(credential)
-          .then((user) => user)
-          .catch((error) => {
-            // Handle Errors here.
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            // The email of the user's account used.
-            var email = error.email;
-            dispatch({ type: "add_error", payload: error.message });
-          });
-      } else {
-        console.log("User already signed-in Firebase.");
-      }
-    }.bind(this)
-  );
-};
+      // Build Firebase credential with the Google ID token.
+      var credential = firebase.auth.GoogleAuthProvider.credential(
+        googleUser.idToken,
+        googleUser.accessToken
+      );
+      // Sign in with credential from the Google user.
+      await firebase
+        .auth()
+        .signInWithCredential(credential)
+        .then(async () => {
+          const currentUser = firebase.auth().currentUser;
+          const userProfile = getUserProfileFromFirebaseUser(currentUser);
+          await firebase
+            .firestore()
+            .collection("Users")
+            .where("email", "==", currentUser.email)
+            .get()
+            .then(async (result) => {
+              if (result.docs.length > 0) {
+                dispatch({ type: "signin", payload: userProfile });
 
-isUserEqual = (googleUser, firebaseUser) => {
-  if (firebaseUser && googleUser) {
-    let providerData = firebaseUser.providerData;
-    for (var i = 0; i < providerData.length; i++) {
-      if (
-        providerData[i].providerId ===
-          firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
-        providerData[i].uid === googleUser?.user?.id
-      ) {
-        // We don't need to reauth the Firebase connection.
-        return true;
-      }
-    }
+                navigate("MainStack");
+              } else {
+                await firebase
+                  .firestore()
+                  .collection("Users")
+                  .add(userProfile)
+                  .then(() => {
+                    dispatch({ type: "signin", payload: userProfile });
+
+                    navigate("MainStack");
+                  })
+                  .catch(async (error) => {
+                    await this.signout();
+                    dispatch({ type: "add_error", payload: error.message });
+                  });
+              }
+            })
+            .catch((error) =>
+              dispatch({ type: "add_error", payload: error.message })
+            );
+        })
+        .catch((error) => {
+          dispatch({ type: "add_error", payload: error.message });
+        });
+    });
+  } catch (error) {
+    dispatch({ type: "add_error", payload: error.message });
   }
-  return false;
 };
 
 const signout = (dispatch) => async () => {
@@ -168,9 +169,23 @@ const signout = (dispatch) => async () => {
     .signOut()
     .then(() => {
       dispatch({ type: "signout" });
-      navigate("loginFlow");
+      navigate("LoginStack");
     })
-    .catch((err) => console.log(err));
+    .catch((err) => dispatch({ type: "add_error", payload: err.message }));
+};
+
+const clearErrorMessage = (dispatch) => () => {
+  dispatch({ type: "clear_error_message" });
+};
+
+const getUserProfileFromFirebaseUser = (user) => {
+  return {
+    name: user?.providerData[0]?.displayName,
+    email: user?.providerData[0]?.email,
+    photo: user?.providerData[0]?.photoURL,
+    provider: user?.providerData[0]?.providerId,
+    uid: user?.providerData[0]?.uid,
+  };
 };
 
 export const { Provider, Context } = createDataContext(
@@ -180,8 +195,9 @@ export const { Provider, Context } = createDataContext(
     signin,
     signout,
     clearErrorMessage,
-    checkIfUserIsLoggedIn,
+    checkIfUserIsLoggedInAndCurrentRole,
     googleAuth,
+    updateUserProfile,
   },
   { isSignedIn: false, errorMessage: "", user: null, token: null }
 );
