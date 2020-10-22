@@ -11,7 +11,6 @@ const ProfileScreen = () => {
   const { state, updateUserProfile } = useContext(AuthContext);
   const [email, setEmail] = useState(state.user?.email);
   const [photoURL, setPhoto] = useState(state.user?.photo);
-  const isGoogleAcc = state.user?.provider === "google.com";
 
   const formik = useFormik({
     initialValues: {
@@ -43,8 +42,7 @@ const ProfileScreen = () => {
             value={formik.values.name}
             onChangeText={(text) => formik.setFieldValue("name", text)}
             icon="person-outline"
-            placeholder={isGoogleAcc ? "" : "John Doe"}
-            editable={isGoogleAcc ? false : true}
+            placeholder="John Doe"
           />
           <CustomInput
             label="email address"
@@ -52,18 +50,15 @@ const ProfileScreen = () => {
             value={email}
             onChangeText={setEmail}
             icon="mail-outline"
-            placeholder={isGoogleAcc ? "" : "johndoe@email.com"}
+            placeholder="johndoe@email.com"
             editable={false}
           />
-          {isGoogleAcc ? (
-            <Text style={styles.note}>Google's profiles are not editable</Text>
-          ) : null}
         </View>
       </ScrollView>
       <Button
         title="Save"
         style={styles.saveButton}
-        disabled={isGoogleAcc || !formik.dirty || !formHasChanged()}
+        disabled={!formik.dirty || !formHasChanged()}
         onPress={formik.handleSubmit}
       />
     </View>

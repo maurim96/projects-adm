@@ -63,10 +63,22 @@ const signup = (dispatch) => async ({ email, password }) => {
     .auth()
     .createUserWithEmailAndPassword(email, password)
     .then((result) => {
-      dispatch({ type: "signin", payload: result });
+      const userProfile = getUserProfileFromFirebaseUser(result.user)
+      const subscriber = firebase
+        .firestore()
+        .collection("Users")
+        .add(userProfile);
+      subscriber
+        .then(() => {
+          dispatch({ type: "signin", payload: userProfile });
 
-      navigate("MainStack");
-    })
+          navigate("MainStack");
+        })
+        .catch(async (error) => {
+          await this.signout();
+          dispatch({ type: "add_error", payload: error.message });
+        });
+      })
     .catch((err) => dispatch({ type: "add_error", payload: err.message }));
 };
 
@@ -74,7 +86,22 @@ const signin = (dispatch) => async ({ email, password }) => {
   await firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
-    .then((user) => {
+    .then(async (user) => {
+      await firebase
+        .firestore()
+        .collection("Users")
+        .where("email", "==", user.email)
+        .get()
+        .then(async (result) => {
+          userProfile = result.docs[0].data();
+          dispatch({ type: "signin", payload: userProfile });
+
+          navigate("MainStack");
+        })
+        .catch(async (error) => {
+          await this.signout();
+          dispatch({ type: "add_error", payload: error.message });
+        });
       dispatch({ type: "signin", payload: user });
 
       navigate("MainStack");
@@ -123,32 +150,33 @@ firebaseGoogleAuth = async (googleUser, dispatch) => {
         .signInWithCredential(credential)
         .then(async () => {
           const currentUser = firebase.auth().currentUser;
-          const userProfile = getUserProfileFromFirebaseUser(currentUser);
+          let userProfile = getUserProfileFromFirebaseUser(currentUser);
           await firebase
             .firestore()
             .collection("Users")
             .where("email", "==", currentUser.email)
             .get()
             .then(async (result) => {
-              if (result.docs.length > 0) {
-                dispatch({ type: "signin", payload: userProfile });
-
-                navigate("MainStack");
-              } else {
-                await firebase
+              let subscriber = Promise.resolve(null);
+              
+              if (result.docs.length === 0) {
+                subscriber = firebase
                   .firestore()
                   .collection("Users")
-                  .add(userProfile)
-                  .then(() => {
-                    dispatch({ type: "signin", payload: userProfile });
-
-                    navigate("MainStack");
-                  })
-                  .catch(async (error) => {
-                    await this.signout();
-                    dispatch({ type: "add_error", payload: error.message });
-                  });
+                  .add(userProfile);
+              } else {
+                userProfile = result.docs[0].data();
               }
+              subscriber
+                .then(() => {
+                  dispatch({ type: "signin", payload: userProfile });
+
+                  navigate("MainStack");
+                })
+                .catch(async (error) => {
+                  await this.signout();
+                  dispatch({ type: "add_error", payload: error.message });
+                });
             })
             .catch((error) =>
               dispatch({ type: "add_error", payload: error.message })
